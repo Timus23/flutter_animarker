@@ -89,7 +89,7 @@ void main() {
           AngleInterpolatorImpl(begin: beginAngle, end: endAngle);
       var angleTween = BearingTween(interpolator: interpolator);
 
-      angleTween.interpolator.swap(newAngle);
+      // angleTween.interpolator.swap(newAngle);
 
       expect(angleTween.begin, equals(endAngle));
       expect(angleTween.end, equals(newAngle));

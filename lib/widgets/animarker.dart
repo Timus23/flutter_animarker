@@ -366,11 +366,27 @@ class AnimarkerState extends State<Animarker> with TickerProviderStateMixin {
         widget.updateMarkers(oldWidget.markers, widget.markers);
         return;
       }
-
       //Manage new markers updates after setState had gotten called
+
+      final _tempsMarkers = <Marker>{};
+      bool isRemoved = false;
+      _tempsMarkers.addAll(_markers.values);
       widget.markers.difference(_markers.set).forEach((marker) async {
-        await _controller.pushMarker(marker);
+        final _index =
+            _controller.currentMarkerId.indexWhere((e) => e == marker.markerId);
+        if (_index != -1) {
+          isRemoved = true;
+          _controller.removeMarker(marker);
+          _tempsMarkers.removeWhere((e) => e.markerId == marker.markerId);
+          _markers.remove(marker.markerId);
+        } else {
+          await _controller.pushMarker(marker);
+        }
       });
+
+      if (isRemoved) {
+        widget.updateMarkers(oldWidget.markers, _tempsMarkers);
+      }
     }
 
     if (widget.isActiveTripHasChanged(oldWidget)) {

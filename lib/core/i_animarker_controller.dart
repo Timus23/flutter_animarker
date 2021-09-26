@@ -1,4 +1,5 @@
 // Flutter imports:
+import 'package:flutter_animarker/core/i_anilocation_task.dart';
 import 'package:flutter_animarker/core/i_location_observable.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 
@@ -11,6 +12,8 @@ abstract class IAnimarkerController extends ILocationObservable {
 
   Future<void> pushMarker(Marker marker);
 
+  void removeMarker(Marker marker);
+
   void updateRadius(double radius);
 
   void updateActiveTrip(bool activeTrip);
@@ -18,4 +21,6 @@ abstract class IAnimarkerController extends ILocationObservable {
   void updateUseRotation(bool useRotation);
 
   void dispose();
+
+  List<MarkerId> get currentMarkerId;
 }

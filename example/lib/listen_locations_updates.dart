@@ -23,8 +23,8 @@ class FlutterMapMarkerAnimationRealTimeExample extends StatefulWidget {
 
 class _FlutterMapMarkerAnimationExampleState
     extends State<FlutterMapMarkerAnimationRealTimeExample> {
-  LatLng startPosition = LatLng(18.488213, -69.959186);
-  LatLng startPosition2 = LatLng(18.488213, -69.959186);
+  LatLng startPosition = LatLng(84.0094057, -28.2140291);
+  LatLng startPosition2 = LatLng(84.0095057, -28.2150291);
 
   late final StreamSubscription<Position> positionStream;
   BitmapDescriptor pinLocationIcon = BitmapDescriptor.defaultMarker;
@@ -41,6 +41,10 @@ class _FlutterMapMarkerAnimationExampleState
 
   Random random = Random();
 
+  var markerId = MarkerId('MarkerId3');
+
+  var markerId2 = MarkerId('MarkerId2');
+
   final Map<MarkerId, Marker> _markers = <MarkerId, Marker>{};
 
   @override
@@ -53,34 +57,47 @@ class _FlutterMapMarkerAnimationExampleState
 
     super.initState();
 
-    positionStream = Geolocator.getPositionStream(
-      desiredAccuracy: LocationAccuracy.bestForNavigation,
-      distanceFilter: 20,
-    ).listen((Position p) async {
-      setState(() {
-        var markerId = MarkerId('MarkerId3');
-        _markers[markerId] = RippleMarker(
-          markerId: markerId,
-          icon: pinLocationIcon,
-          position: LatLng(p.latitude, p.longitude),
-          ripple: ripple,
-        );
-      });
-
-      await Future.delayed(
-          Duration(milliseconds: min(1000, random.nextInt(5000))), () {
-        setState(() {
-          startPosition = LatLng(p.latitude + 0.001, p.longitude + 0.001);
-        });
-      });
-
-      await Future.delayed(
-          Duration(milliseconds: min(1000, random.nextInt(1000) + 100)), () {
-        setState(() {
-          startPosition2 = LatLng(p.latitude - 0.01, p.longitude - 0.002);
-        });
-      });
+    // positionStream = Geolocator.getPositionStream(
+    //   desiredAccuracy: LocationAccuracy.bestForNavigation,
+    //   distanceFilter: 20,
+    // ).listen((Position p) async {
+    _controller.future.then((value) {
+      value.animateCamera(
+        CameraUpdate.newLatLng(
+          LatLng(startPosition.latitude, startPosition.longitude),
+        ),
+      );
     });
+    setState(() {
+      _markers[markerId] = RippleMarker(
+        markerId: markerId,
+        icon: pinLocationIcon,
+        position: LatLng(startPosition.latitude, startPosition.longitude),
+        ripple: ripple,
+      );
+
+      _markers[markerId2] = RippleMarker(
+        markerId: markerId2,
+        icon: pinLocationIcon,
+        position: LatLng(startPosition2.latitude, startPosition2.longitude),
+        ripple: ripple,
+      );
+    });
+
+    // await Future.delayed(
+    //     Duration(milliseconds: min(1000, random.nextInt(5000))), () {
+    //   setState(() {
+    //     startPosition = LatLng(p.latitude + 0.001, p.longitude + 0.001);
+    //   });
+    // });
+
+    // await Future.delayed(
+    //     Duration(milliseconds: min(1000, random.nextInt(1000) + 100)), () {
+    //   setState(() {
+    //     startPosition2 = LatLng(p.latitude - 0.01, p.longitude - 0.002);
+    //   });
+    // });
+    // });
   }
 
   @override
@@ -162,7 +179,10 @@ class _FlutterMapMarkerAnimationExampleState
                       ElevatedButton(
                         style: (isActiveTrip ? Colors.red : Colors.blue)
                             .buttonStyle,
-                        onPressed: () => setState(() => _markers.clear()),
+                        onPressed: () => setState(() {
+                          _markers.remove(markerId2);
+                          // _markers.clear();
+                        }),
                         child: Text(
                           'Clear marker',
                           style: TextStyle(fontSize: 12),

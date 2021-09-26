@@ -104,4 +104,18 @@ class AnimarkerController extends IAnimarkerController {
     tracker.forEach((key, value) => value.dispose());
     tracker.clear();
   }
+
+  @override
+  List<MarkerId> get currentMarkerId {
+    return tracker.keys.toList();
+  }
+
+  @override
+  void removeMarker(Marker marker) {
+    final _localMarker = tracker[marker.markerId];
+    if (_localMarker != null) {
+      tracker.remove(marker.markerId);
+      _localMarker.dispose();
+    }
+  }
 }
