@@ -356,6 +356,18 @@ class AnimarkerState extends State<Animarker> with TickerProviderStateMixin {
     super.initState();
   }
 
+  List<Marker> getRemovedMarker() {
+    final _tempRemoved = <Marker>[];
+    _markers.set.forEach((e) {
+      var tempCheckList =
+          widget.markers.where((val) => val.markerId == e.markerId);
+      if (tempCheckList.isEmpty) {
+        _tempRemoved.add(e);
+      }
+    });
+    return _tempRemoved;
+  }
+
   @override
   Widget build(BuildContext context) => widget.child;
 
@@ -369,24 +381,22 @@ class AnimarkerState extends State<Animarker> with TickerProviderStateMixin {
       //Manage new markers updates after setState had gotten called
 
       final _tempsMarkers = <Marker>{};
-      bool isRemoved = false;
       _tempsMarkers.addAll(_markers.values);
+
+      final _removedItems = getRemovedMarker();
+
       widget.markers.difference(_markers.set).forEach((marker) async {
-        final _index =
-            _controller.currentMarkerId.indexWhere((e) => e == marker.markerId);
-        if (_index != -1) {
-          isRemoved = true;
-          _controller.removeMarker(marker);
-          _tempsMarkers.removeWhere((e) => e.markerId == marker.markerId);
-          _markers.remove(marker.markerId);
-        } else {
-          await _controller.pushMarker(marker);
-        }
+        await _controller.pushMarker(marker);
+        _tempsMarkers.add(marker);
       });
 
-      if (isRemoved) {
-        widget.updateMarkers(oldWidget.markers, _tempsMarkers);
-      }
+      _removedItems.forEach((e) {
+        _controller.removeMarker(e);
+        _tempsMarkers.removeWhere((val) => val.markerId == e.markerId);
+        _markers.remove(e.markerId);
+      });
+
+      widget.updateMarkers(oldWidget.markers, _tempsMarkers);
     }
 
     if (widget.isActiveTripHasChanged(oldWidget)) {
